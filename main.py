@@ -20,6 +20,8 @@ ptCenter is the viewpoint's world coordinates"""
 
 PLAYER_SIZE = 64
 CENTER = [320, 240]
+COLORKEY = (255, 0, 255) # That Hideous Purple
+
 class PyManMain:
     """The Main PyMan Class - This class handles the main 
     initialization and creating of the Game."""
@@ -43,16 +45,37 @@ class PyManMain:
         """tell pygame to keep sending up keystrokes when they are
         held down"""
         pygame.key.set_repeat(500, 30)
-        
-        """Create the background"""
+
+        # Initialize coordinate system.
+        CENTER = (self.screen.get_size()[0]/2, self.screen.get_size()[1]/2)
+
+        # Create surfaces to be layers.
+        """
+        Background - Drawn first, does not move with player
+        Level - Drawn over background, contains non-moving entities
+        Player - drawn at the center
+        Mobs - drawn around the player
+        Effects - contains temporary entities
+        HUD - Foreground.  Drawn at the top layer, does not move
+        """
         self.background = pygame.Surface(self.screen.get_size())
         self.background = self.background.convert()
         self.background.fill((0,0,0))
-
-        CENTER = (self.screen.get_size()[0]/2, self.screen.get_size()[1]/2)
-
-        self.player = pygame.Surface((PLAYER_SIZE, PLAYER_SIZE))
+        
+        self.level = pygame.Surface(self.screen.get_size())
         self.mobs = pygame.Surface(self.screen.get_size())
+        self.player = pygame.Surface((PLAYER_SIZE, PLAYER_SIZE))
+        self.effects = pygame.Surface(self.screen.get_size())
+
+        self.hud = pygame.Surface(self.screen.get_size())
+        self.hud.fill(COLORKEY)
+        self.hud.set_colorkey(COLORKEY)
+        # One-time HUD elements drawn here
+        if pygame.font:
+            font = pygame.font.Font(None, 36)
+            text = font.render("HUD Text", 1, (255, 0, 0))
+            textpos = text.get_rect(centerx=self.background.get_width()/2)
+            self.hud.blit(text, textpos)
         
         while 1:
             for event in pygame.event.get():
@@ -76,12 +99,6 @@ class PyManMain:
                         
             """Do the Drawing"""               
             self.screen.blit(self.background, (0, 0))     
-            if pygame.font:
-                font = pygame.font.Font(None, 36)
-                text = font.render("Pellets %s" % self.snake.pellets
-                                    , 1, (255, 0, 0))
-                textpos = text.get_rect(centerx=self.background.get_width()/2)
-                self.screen.blit(text, textpos)
 
             # Draw the player in the center point
             # changing dimensions to make up for varying sprite size.
@@ -90,13 +107,17 @@ class PyManMain:
             self.player.fill((0,0,0))
             self.snake_sprites.draw(self.player)
 
+            #TODO level layer
+            
             self.pellet_sprites.draw(self.mobs)
             self.screen.blit(self.mobs, worldToScreen((0, 0), self.snake.pos()))
             
             self.screen.blit(self.player, CENTER_CURR)
 
-            
-            
+            #TODO effects layer
+
+            #TODO dynamic HUD elements drawn here.
+            self.screen.blit(self.hud, (0,0))
             
             pygame.display.flip()
                     
