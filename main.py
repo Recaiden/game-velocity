@@ -147,6 +147,7 @@ class Mob(pygame.sprite.Sprite):
     """This is our mob that will move around the screen"""
 
     heading = 0
+    facing = 0
     speed = 0
     # accumulated fractional distance.
     x = 0
@@ -171,15 +172,17 @@ class Mob(pygame.sprite.Sprite):
         """Key is the pyGame define for either up, down, left, or right key
         we will adjust ourselfs in that direction"""
         if (key == K_d):
-            self.heading = (self.heading + TURN_RATE)%360
-            self.image = pygame.transform.rotate(self.image_orig, -1*self.heading)
+            self.facing = (self.facing + TURN_RATE)%360
+            self.image = pygame.transform.rotate(self.image_orig, -1*self.facing)
         elif (key == K_a):
-            self.heading = (self.heading - TURN_RATE)%360
-            self.image = pygame.transform.rotate(self.image_orig, -1*self.heading)
+            self.facing = (self.facing - TURN_RATE)%360
+            self.image = pygame.transform.rotate(self.image_orig, -1*self.facing)
         elif (key == K_w):
-            self.speed = min(self.speed+1, SPEED_MAX) 
+            self.speed = min(self.speed+1, SPEED_MAX)
+            self.heading = (self.heading + (self.heading - self.facing)/max(1,abs(self.speed)))%360
         elif (key == K_s):
             self.speed = max(self.speed-1, -1*SPEED_MAX)
+            self.heading = (self.heading + (self.heading - self.facing)/max(1,abs(self.speed)))%360
         print "Speed", self.speed, "Heading", self.heading
 
     def move(self):
